@@ -7,8 +7,6 @@ import House from './components/House.js';
 import Person from './components/Person.js';
 import ResponsiblePerson from './components/ResponsiblePerson.js';
 import Municipality from './components/Municipality.js';
-
-
 function App() {
   return (
     <div className="App">
