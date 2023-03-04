@@ -3,6 +3,7 @@ import {Modal, ModalBody, ModalHeader} from 'react-bootstrap';
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { Snackbar,Alert } from "@mui/material";
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 
 //Icons
@@ -53,14 +54,12 @@ const Municipality = () => {
             setTitle('Registrar Municipio');
             setOperation('Register');
             setInitialValues({
-                id:"",
                 name:""
             })
         }else if(op === 2){
             setTitle('Editar Municipio');
             setOperation('Edit');
             setInitialValues({
-                id:id,
                 name:name
             })
 
@@ -153,12 +152,12 @@ const Municipality = () => {
     return (  <>
         <div className="App">
             <h1 className="pt-3">Municipios</h1>
-                <div className="container-fluid">
+                <div className="container-fluid_">
                     <div className="mt-3">
                         <div className="col-md-4 offset-md-4">
                             <div className="d-grid mx-auto">
-                                <button className="btn btn-dark" onClick={() => handleShowModalForm(1) }>
-                                    <AddCircleOutlineIcon/>Añadir
+                                <button className="btn btn-dark"onClick={() => handleShowModalForm(1) }>
+                                    <AddCircleOutlineIcon />Añadir
                                 </button>
                             </div>
                         </div>
@@ -167,7 +166,7 @@ const Municipality = () => {
                 <div className="mt-3">
                     <div className="col-12 col-lg-12 offset-0 offset-lg-12">
                         <div className="table-responsive">
-                            <table className="table table-bordered">
+                            <table className="table table-bordered ml-4 mr-4">
                                 <thead>
                                     <tr>
                                         <th>id</th> 
@@ -200,27 +199,12 @@ const Municipality = () => {
                 </div>
             {/* modal que contiene formularios tanto para crear como modificar */}
             <Modal show={showModalForm} onHide={handleCloseModalForm}>
-                <ModalHeader>
+                <ModalHeader closeButton>
                     <Modal.Title>{title}</Modal.Title>
                 </ModalHeader>
                 
                 <ModalBody>
                     <form className="form mt-0" onSubmit={formik.handleSubmit}>
-                        <div className="input-group mb-3">
-                            <span className="input-group-text"><PinIcon/></span>
-                            <input 
-                                className="form-control"
-                                type="text" 
-                                id="id" 
-                                name= "id"
-                                placeholder="Id de municipio"
-                                onChange={formik.handleChange} 
-                                onBlur={formik.handleBlur}
-                                value={formik.values.id} 
-                            />
-                        </div >
-                        {formik.touched.id && formik.errors.id ? <div className="error">{formik.errors.id}</div> : null}
-
                         <div className="input-group mb-3">
                                     <span className="input-group-text"><FlagIcon/></span>
                                     <input 
@@ -249,6 +233,7 @@ const Municipality = () => {
                     Formulario enviado con exito
                 </Alert>
             </Snackbar>
+
             {/* Modal de verificacion de borrado*/}
             <Modal show={showModalDelete} onHide={handleCloseModalDelete}>
                 <ModalHeader closeButton>
