@@ -1,6 +1,9 @@
 import React, { useState,useEffect } from "react";
 import {Modal, ModalBody, ModalHeader} from 'react-bootstrap';
 import { useFormik } from "formik";
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import * as Yup from "yup";
 import { Snackbar,Alert } from "@mui/material";
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -183,6 +186,24 @@ const Person = () => {
         });
     }
 
+    // function onChangeDate(e, newDate){
+
+    //     let stringDate = newDate.toString();
+
+    //     if(this.props.valueLink){
+    //         this.props.valueLink.requestChange(stringDate);
+    //     }else if(this.props.onChange){
+    //         this.props.onChange(stringDate);
+    //     }
+
+    //     console.log(formik.values.birthdate);
+    //     formik.values.birthdate = stringDate;
+    //     console.log(formik.values.birthdate);
+
+    // }
+
+    
+
     return (  <>
         <div className="App">
             <h1 className="pt-3">Personas</h1>
@@ -297,8 +318,14 @@ const Person = () => {
                         {formik.touched.surname && formik.errors.surname ? <div className="error">{formik.errors.surname}</div> : null}
 
                         {/*fecha de nacimiento */}
-
-
+                        <small>Fecha de nacimiento</small>
+                        <div className="input-group mb-3">
+                            <span className="input-group-text"><EventIcon/></span>
+                            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                <DatePicker value={formik.values.birthdate}/>
+                            </LocalizationProvider>
+                        </div >
+                    
                         <div className="input-group mb-3">
                             <span className="input-group-text"><WcIcon/></span>
                             <select name="sex" id="sex" className="form-control" aria-label="Default select example"
