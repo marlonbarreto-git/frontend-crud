@@ -108,7 +108,7 @@ const ResponsiblePerson = () => {
 
             if(operation === "Register"){
                 API.post('write/responsibles',responsible_data).then((response)=>{
-                    if(response.status === 200){
+                    if(response.status === 201){
                         formik.resetForm();
                         setShowSendVerification(true);
                     }
@@ -122,7 +122,7 @@ const ResponsiblePerson = () => {
 
             }else if(operation === "Edit"){
                 API.patch('write/responsibles/'+responsibleId,responsible_data).then((response)=>{
-                    if(response.status === 201){
+                    if(response.status === 200){
                         // formik.resetForm();
                         // setSendVerification(true);
                         // setTimeout(() => setSendVerification(false),6000);
@@ -143,7 +143,7 @@ const ResponsiblePerson = () => {
 
     const deleteResponsible= () =>{
         API.delete('write/responsibles/'+responsibleId).then((response)=>{
-            if(response.status === 200){
+            if(response.status === 204){
                 // formik.resetForm();
                 // setSendVerification(true);
                 // setTimeout(() => setSendVerification(false),6000);
