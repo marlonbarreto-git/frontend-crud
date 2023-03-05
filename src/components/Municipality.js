@@ -99,7 +99,7 @@ const Municipality = () => {
 
             if(operation === "Register"){//Envio de datos cuando se va a registrar
                 API.post('write/municipalities',municipality_data).then((response)=>{//Envio de datos realizado correctamente
-                    if(response.status === 200){
+                    if(response.status === 201){
                         formik.resetForm();//Borrar datos de formulario
                         setShowSendVerification(true);//Mostrar mensaje de confirmación
                     }
@@ -113,7 +113,7 @@ const Municipality = () => {
 
             }else if(operation === "Edit"){//Envio de datos operacion editar
                 API.patch('write/municipalities/'+municipalityId,municipality_data).then((response)=>{
-                    if(response.status === 201){
+                    if(response.status === 200){
                         // formik.resetForm();
                         // setSendVerification(true);
                         // setTimeout(() => setSendVerification(false),6000);
@@ -134,7 +134,7 @@ const Municipality = () => {
 
     const deleteMunicipality= () =>{
         API.delete('write/municipalities/'+municipalityId).then((response)=>{
-            if(response.status === 201){
+            if(response.status === 204){
                 // formik.resetForm();
                 // setSendVerification(true);
                 // setTimeout(() => setSendVerification(false),6000);
