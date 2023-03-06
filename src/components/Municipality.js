@@ -91,8 +91,7 @@ const Municipality = () => {
         enableReinitialize: true, //Permite cambiar los valores iniciales
         initialValues:initialValues,
         validationSchema:Yup.object({
-            name:Yup.string().required("Este campo es requerido").matches( /^[a-zA-ZÀ-ÿ\s]{1,40}$/,"Solo permite letras y espacios"),
-            id:Yup.string().required("Este campo es requerido")
+            name:Yup.string().required("Este campo es requerido").matches( /^[a-zA-ZÀ-ÿ\s]{1,40}$/,"Solo permite letras y espacios")
         }),
         onSubmit: values =>{
             const municipality_data =JSON.stringify(values, null, 2);
