@@ -1,8 +1,333 @@
-import React from "react";
+import React, { useState,useEffect } from "react";
+import {Modal, ModalBody, ModalHeader} from 'react-bootstrap';
+import { useFormik } from "formik";
+import * as Yup from "yup";
+import { Snackbar,Alert } from "@mui/material";
+import 'bootstrap/dist/css/bootstrap.min.css';
+
+
+//Icons
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import CheckIcon from '@mui/icons-material/Check';
+import CloseIcon from '@mui/icons-material/Close';
+import HelpIcon from '@mui/icons-material/Help';
+import SaveIcon from '@mui/icons-material/Save';
+import PinIcon from '@mui/icons-material/Pin';
+import FlagIcon from '@mui/icons-material/Flag';
+import HouseIcon from '@mui/icons-material/House';
+import PersonIcon from '@mui/icons-material/Person';
+
+import API from '../services/http-common.js'
 
 const House = () => {
+
+    const [title, setTitle] = useState('');
+    const [operation, setOperation] = useState('');
+    const [initialValues, setInitialValues] = useState('');
+    const [dataHouse, setDataHouse] = useState([]);
+    const [dataPerson, setDataPerson] = useState([]);
+    const [dataMunicipality, setDataMunicipality] = useState([]);
+    const [houseId, setHouseId] = useState('');
+    const [ownerId, setOwnerId] = useState('');
+    const [municipalityId, setMunicipalityId] = useState('');
+    const [houseAddress, sethouseAddress] = useState('');
+
+    const [message, setMessage] = useState('');
+    const [error, setError] = useState('');
+
+    const [showModalDelete, setShowModalDelete] = useState('');
+
+    const handleCloseModalDelete = () => setShowModalDelete(false);
+
+    const handleShowModalDelete = (id, adress) => {
+        setShowModalDelete(true);
+        setHouseId(id);
+        sethouseAddress(adress);
+    }
+
+    const [showModalForm, setShowModalForm] = useState(false);
+
+    const handleCloseModalForm = () => setShowModalForm(false);
+
+    const handleShowModalForm = (op, id, address,owner,municipality) => {
+        setShowModalForm(true);
+        setHouseId(id);
+        setOwnerId(owner);
+        setMunicipalityId(municipality);
+        if (op === 1) {
+            setTitle('Registrar Casa');
+            setOwnerId('');
+            setMunicipalityId('');
+            setOperation('Register');
+            setInitialValues({
+                id:"",
+                address:"",
+                idOwner:"",
+                idMunicipality:""
+            });
+        } else if (op === 2) {
+            setTitle('Editar Casa');
+            setOperation('Edit');
+            setInitialValues({
+                id:id,
+                address:address,
+                idOwner:owner,
+                idMunicipality:municipality
+            });
+        }
+    
+    }
+
+    const [showSendVerification, setShowSendVerification] = useState(false);
+
+    const handleCloseSendVerification = () => setShowSendVerification(false);
+
+    const getHouse = async () =>{
+        return await API.get('read/houses').then((response) =>{
+            setDataHouse(JSON.parse(JSON.stringify(response.data)));
+        }).catch((error) =>{
+            console.log(error);
+        })
+    }
+
+    const getPerson = async () =>{
+        return await API.get('read/people').then((response) =>{
+            setDataPerson(JSON.parse(JSON.stringify(response.data)));
+        }).catch((error) =>{
+            console.log(error);
+        })
+    }
+
+    const getMunicipality = async () =>{
+        return await API.get('read/municipalities').then((response) =>{
+            setDataMunicipality(JSON.parse(JSON.stringify(response.data)));
+        }).catch((error) =>{
+            console.log(error);
+        })
+    }
+
+    useEffect(() => {
+        getHouse();
+    }, [showSendVerification]);
+
+    useEffect(() => {
+        getMunicipality();
+        getPerson();
+    }, []);
+
+    const formik = useFormik({
+        enableReinitialize: true,
+        initialValues: initialValues,
+        validationSchema: Yup.object({
+            id: Yup.string().required("Este campo es requerido"),
+            address: Yup.string().required("Este campo es requerido").min(5,"Direccion no valida")
+           
+        }),
+        onSubmit: values => {
+            const house_data = JSON.stringify(values, null, 2);
+
+            if (operation === "register") {
+                API.post('write/houses', house_data).then((response) => {
+                    if (response.status === 200) {
+                        formik.resetForm();
+                        setShowSendVerification(true);
+                    }
+                }).catch(error => {
+                    var error_data = error.response.data["error"];
+                    setMessage(error_data);
+                    setError(true);
+                    setTimeout(() => setError(false), 3000);
+                });
+            } else if (operation === "Edit") {
+                API.patch('write/houses/' + houseId, house_data).then((reponse) => {
+                    if (reponse.status === 201) {
+                        //formik?
+                        setShowSendVerification(true);
+                    }
+                }).catch(error => {
+                    var error_data = error.response.data["error"];
+                    setMessage(error_data);
+                    setError(true)
+                    setTimeout(() => setError(false), 4000);
+                });
+            }
+        },
+    });
+
+    const deleteHouse = () => {
+        API.delete('write/houses/' + houseId).then((response) => {
+            if (response.status === 201) {
+                formik.resetForm();
+                setShowSendVerification(true);
+                setShowModalDelete(false)
+            }
+        }).catch(error => {
+            var error_data = error.response.data["error"];
+            setMessage(error_data);
+            setError(true)
+            setTimeout(() => setError(false), 4000);
+        });
+    }
+
     return ( <>
-        <h1>Casas</h1>
+        <div className = "App">
+            <h1 className = "pt-3">Casas</h1>
+            <div className = "container-fluid_">
+                <div className = "mt-3">
+                    <div className = "col-md-4 offset-md-4">
+                        <div className = "d-grid mx-auto">
+                            <button className = "btn btn-dark" onClick={() => handleShowModalForm(1) }>
+                                <AddCircleOutlineIcon/>Añadir
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div className = "mt-3">
+                <div className = "col-12 col-lg-12 offset-0 offset-lg-12">
+                    <div className = "table-responsive">
+                        <table className = "table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>id</th>
+                                    <th>Direccion</th>
+                                    <th>Propietario</th>
+                                    <th>Municipio</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody className = "table-group-divider">
+                                {
+                                    dataHouse.map((house, id) => (
+                                        <tr key = {id}>
+                                            <td>{house.id}</td>
+                                            <td>{house.adress}</td>
+                                            <td>{dataPerson.map((person,id)=>{
+                                                                if(person.id === house.idOwner){
+                                                                    return person.forename +' '+ person.surname;
+                                                                }
+                                                            })  
+                                                            }</td>
+                                            <td>{dataMunicipality.map((municipality,id)=>{
+                                                                if(municipality.id === house.idMunicipality){
+                                                                    return municipality.name;
+                                                                }
+                                                            })  
+                                                            }</td>
+                                            <td>
+                                                <button className = "btn btn-warning" onClick={() => handleShowModalForm(2, house.id, house.adress,house.idOwner,house.idMunicipality)}>
+                                                    <i><EditIcon/></i>
+                                                </button>
+                                                &nbsp;
+                                                <button className = "btn btn-danger" onClick = {() => handleShowModalDelete(house.id, house.adress)}>
+                                                    <i><DeleteIcon/></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            { /* Modal que contiene los formularios de crear y modificar*/}
+            <Modal show = {showModalForm} onHide = {handleCloseModalForm}>
+                <Modal.Header>
+                    <Modal.Title>{title}</Modal.Title>
+                </Modal.Header>
+
+                <ModalBody>
+                    <form className="form mt-0" onSubmit = {formik.handleSubmit}>
+                        <div className="input-group mb-3">
+                            <span className="input-group-text"><PinIcon/></span>
+                            <input className = "form-control"
+                                   type = "text"
+                                   id = "id"
+                                   adress = "id"
+                                   placeholder = "Id de casa"
+                                   onChange = {formik.handleChange}
+                                   onBlur = {formik.handleBlur}
+                                   value = {formik.values.id}
+                            />
+                        </div>
+                        {
+                            formik.touched.id && formik.errors.id ? <div className = "error">{formik.errors.id}</div> : null
+                        }
+                        <div className="input-group mb-3">
+                            <span className="input-group-text"><HouseIcon/></span>
+                            <input className = "form-control"
+                                   type = "text"
+                                   id = "address"
+                                   adress = "address"
+                                   placeholder = "Direccion de casa"
+                                   onChange = {formik.handleChange}
+                                   onBlur = {formik.handleBlur}
+                                   value = {formik.values.address}
+                            />
+                        </div>
+                        {
+                            formik.touched.address && formik.errors.address? <div className = "error">{formik.errors.address}</div> : null
+                        }
+
+                        <div className="input-group mb-3">
+                            <span className="input-group-text"><PersonIcon/></span>
+                            <select name="idOwner" id="idOwner" className="form-control" aria-label="Default select example"
+                            defaultValue={(ownerId === '') ? 'placeholder': ownerId} onChange={formik.handleChange}  onBlur={formik.handleBlur}>
+                                <option value='placeholder'disabled>Seleccione un propietario</option>
+                                {dataPerson.map((person,id) =>(
+                                    <option key={id} value={person.id}>{person.forename + ' ' + person.surname}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        <div className="input-group mb-3">
+                            <span className="input-group-text"><FlagIcon/></span>
+                            <select name="idMunicipality" id="idMunicipality" className="form-control" aria-label="Default select example"
+                            defaultValue={(municipalityId === '') ? 'placeholder': municipalityId} onChange={formik.handleChange}  onBlur={formik.handleBlur}>
+                                <option value='placeholder'disabled>Seleccione un municipio</option>
+                                {dataMunicipality.map((municipality,id) =>(
+                                    <option key={id} value={municipality.id}>{municipality.name}</option>
+                                ))}
+                            </select>
+                        </div>
+
+
+                        <div>
+                            <button className = "btn btn-success" type = "submit"><SaveIcon className = "mr-1"/>Guardar</button>
+                        </div>
+                        {
+                            error && <p className = "error mt-2">{message}</p>
+                        }
+                    </form>
+                </ModalBody>
+            </Modal>
+            {/* Envio exitoso de informacion del formulario*/}
+            <Snackbar open = {showSendVerification} autoHideDuration = {6000} onClose = {handleCloseSendVerification}>
+                <Alert onClose = {handleCloseSendVerification} severity = "success" sx = {{width: '100%'}}>
+                    Formulario enviado con exito
+                </Alert>
+            </Snackbar> 
+            {/* Verificacion de borrado*/}
+            <Modal show = {showModalDelete} onHide = {handleCloseModalDelete}>
+                <ModalHeader closeButton>
+                    <Modal.Title><HelpIcon/>Eliminar casa</Modal.Title>
+                </ModalHeader>
+                <ModalBody>
+                    <div className = "Container">
+                        <h5 className = "mb-3">Está seguro que desea eliminar esta casa con</h5>
+                        <h5 className = "mb-2">id: {houseId}</h5>
+                        <h5>Direccion: {houseAddress}</h5>
+                    </div>
+                    <div className = "d-flex justify-content-around mt-3">
+                        <button onClick = {deleteHouse} className = "btn btn-success"><CheckIcon/>SI</button>
+                        <button onClick = {handleCloseModalDelete} className = "btn btn-danger"><CloseIcon/>NO</button>
+                    </div>
+                </ModalBody>
+            </Modal>
+        </div>
     </>);
 }
  
