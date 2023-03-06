@@ -53,6 +53,8 @@ const ResponsiblePerson = () => {
         if(op === 1){
             setTitle('Registrar Responsable');
             setOperation('Register');
+            setResponsibleId('');
+            setPersonId('');
             setInitialValues({
                 idResponsible:'',
                 idPerson:''
